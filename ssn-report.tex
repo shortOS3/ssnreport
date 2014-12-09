@@ -117,7 +117,10 @@ Most of the previous work which has been done on URL shortening services is base
 Another example was the investigation of specific countermeasures take from these particular services to defend against the manipulation of the shortened URLs for malicious purposes; also trying to determine and statistically analyze the extent of spamming given certain geographical locations in which the services were used.
 
 \paragraph{}
-As for the analysis of the URLs as independant links and their respective data, the primary focus was on short URLs collected by popular social media such as Twitter. And the statistics revolved around their popularity lifetimes and the expectancy of the amount of clicks these URLs would get.
+ As for the analysis of the URLs as independant links and their respective data, the primary focus was on short URLs collected by popular social media such as Twitter. And the statistics revolved around their popularity lifetimes and the expectancy of the amount of clicks these URLs would get.
+ 
+\paragraph{}
+ An interesting example of this was to use these services to monitor certain campaigns from companies that someone deems as competitors. Google search queries were used to find results from the website of a specific company that contain the names goo.gl or bit.ly in combination with the use of certain keywords. After obtaining a positive result, one could use these shortened links to study their metrics and then judge (e.g. by the amount of clicks) how well that particular campaign is going.
 
 \subsection{Ethical Implications}
 
@@ -129,23 +132,174 @@ As for the analysis of the URLs as independant links and their respective data, 
 	
 \section{Research Methodologies}
 
+\paragraph{}
+To get a better understanding about what could be found on these URLs, we designed scripts in both Go and Python for the goo.gl and bit.ly shorteners respectively, aimed to retrieve a subset of the original URLs stored on those services.
+
+\paragraph{}
+To that end we used the APIs provided by those providers, although it is worth mentioning at this point -and this will be discussed later on- that it is not required to use those APIs to retrieve that data. The reason to use those APIs was to play within the rules of these services, to not raise issues between the SNE and the organizations behind the services.
+
 \subsection{URL Crawling}
+
+\paragraph{}
+Both services provided APIs that allowed easy retrieval of the URLs stored on their databases as well as other features (like additional information about these URLs such as their creation time) that we did not directly use on our project, but that could still prove a security issue for the data there.
+
+\paragraph{}
+The APIs had a limitation on how many queries they could take per amount of time, the most significant being the hourly limit, which was 1 million queries for goo.gl and about 4,000 for bit.ly (the value of bit.ly limit was not stated on their website, so we just calculated an approximation). At the end of the designed week for crawling purposes, we had retrieved 7 million URLs from goo.gl and 3 million from bit.ly.
 
 \subsubsection{Goo.gl}
 
 \subsubsection{Bit.ly}
 
+\paragraph{}
+For the bit.ly crawler we used a more standard approach using regular parallel computing methods available on the Python Standard Library, in conjunction with the bit.ly API for Python. The priority for this project was to develop a very modular program (as bit.ly hourly limit was low enough that performance didn't really matter) so that the code could be expanded to allow for more complex utility such as also downloading HTMLs or documents from the retrieved URLs.
+
+\paragraph{}
+The first versions of this crawler used new processes for the parallel computing. However this caused some issues that were difficult to fix in the short time we had for this project, and we decided to switch to threads. In Python this can be a huge setback, as the Threading library runs all generated threads on the same processor, but in this environment the processing speed was far from being a bottleneck for the performance, compared to the network communication time between our clients and the server.
+
+\paragraph{}
+Another issue we had to fix was to make the code exception-safe and thread-safe.
+
+\begin{itemize}
+
+\item  Safety on exceptions: Exceptions while doing the crawling were quite common and they needed to be handled correctly, as otherwise threads could die or start unpredictable behaviors. Exceptions ranged from encoding problems due to strange characters on URLs (Arabic or Japanese characters, for example) to queries returning errors (such as timeouts or reaching the limit set for a time range).
+
+\item  Safety on threads: Threads worked independently from each other, but they were using the same output files for their results, to prevent excessive usage of memory and keep the data organized. This constant writing to the output files from different sources had to be managed carefully to avoid data corruption.
+
+\end{itemize}
+
+\paragraph{}
+We also included a basic network communication utility on the script to enable communication with other machines. Although this was solely used to control the script remotely, it could be also used as a Proof of Concept on how an attack with a botnet could be used against those services to get all their database in a relatively short amount of time.
+
 \subsection{Data Mining}
 
+\paragraph{}
+Once the URLs are retrieved, there are many ways that information can be handled, and different levels of depth to perform searches.
+
 \subsubsection{RegEx}
+
+\subsubsection{URL Data}
+
+\paragraph{}
+The first level of search is the long URLs retrieved themselves. Some of those URLs contain parameters which can provide useful information to an attacker. Even a simple check for the string “password” leads to many URLs that actually have plaintext passwords on them. Other parameters that an attacker could be interested in are for example usernames, dates or session identifiers.
+
+\subsubsection{HTML Documents}
+
+\paragraph{}
+A deeper search can be done by retrieving the actual HTML or documents behind the URLs.
+
+\begin{itemize}
+
+\item  HTML mining: HTML pages can contain information poorly defended against attackers that can see or guess certain identification variables on the URLs to get extra data from the pages or their databases. If these identifications or sessions are not correctly handled, an attacker can view the same HTML page a legitimate user saw before him and obtain private data from it.
+
+\item  Document mining: Some of the URLs we crawled were direct links to documents or FTP servers. It is easy to retrieve information from those sources in a similar way as the HTML mining, and obtain documents that should not be of public domain. Many of these URLs lead to public information that has no value for a potential attacker, but unawareness of how URLS work might lead to sharing private documents through them, which can be later retrieved if these links do not expire.
+
+\end{itemize}
 
 \subsubsection{MongoDB Queries}
 
 \section{Results}
 
+\paragraph{}
+We did some basic mining on the data we obtained, which lead us to a large amount of vulnerabilities that could be easily exploited. Considering that we only did this very basic study on the surface of the possibilities available, and the fact that we only crawled a very small subset of all available URLs on these services, we can conclude that the URLs are a huge database of vulnerabilities on the Internet.
+
 \subsection{What can an attacker do?}
 
+\paragraph{}
+In this section we will discuss our calculations regarding the feasibility of getting the entire space of URLs available on these services, as well as what can be done with that data.
+
+\subsubsection{Retrieving the Entire URL Database}
+
+\paragraph{}
+First of all, we wanted to make a calculation on how much time would an attacker need to get all the URLs -or most of them, as it is a database constantly growing up-. Our size estimations are as follow in Table 1.
+
+\begin{table}[h]
+	\centering
+		\begin{tabular}{ | l | c | c | c |}
+ 			\hline
+			  & Goo.gl & Bit.ly \\ \hline
+ 			Address Space & 62⁶ directions = 5.68 x 10¹⁰ & 62⁷ directions = 3.52 x 10¹² \\
+ 			\hline
+  		\end{tabular}
+	\caption[A table]{Address Space for the goo.gl and bit.ly services.}
+	\label{tab:albums}
+\end{table}
+
+\paragraph{}
+A potential attacker could use a botnet to retrieve addresses. A botnet attack in this scenario can be useful for two purposes:
+
+\begin{itemize}
+
+\item  First, the obvious advantage of retrieving URLs faster if the botnet is configured properly.
+
+\item  And second, but not less important, it makes a lot more difficult for the URLS companies to detect the crawling and take prevention actions.
+
+\end{itemize}
+
+\paragraph{}
+It is difficult to define a botnet size for this study, as botnets have a huge discrepancy in sizes, ranging from a few thousands to multiple millions of infected computers [1]. For this reason we decided to base our calculations on a botnet of a relatively small size, about 10⁴ computers. This should be easily attainable worldwide, but even for a small region the number is reasonable.
+
+\paragraph{}
+The only parameter that we need to know after defining a botnet size is how many requests can we get per second. Assuming that we have a botnet that operates worldwide, we can estimate that the response times will vary from a few milliseconds to a few hundred milliseconds.
+
+\paragraph{}
+We show a brief study we did on this matter in Table 2, using information available on nirsoft.net[2] and RIPE Atlas[3]. We selected various machines on different locations to get an estimation on the request times.
+
+\begin{table}[h]
+	
+		\begin{tabular}{|l|c|c|c|c|c|}
+  			\hline
+	  		\textbf{Server Location} & \textbf{Minimum} & \textbf{Average} & \textbf{Maximum} & \textbf{Std Deviation} \\
+	  		\hline
+  			Netherlands & 7.254 & 7.316 & 7.439 & 0.035 \\ 
+  			\hline
+  			Japan & 257.859 & 265.058 & 269.539 & 4.787 \\
+	  		\hline
+  			USA (MI) & 105.340 & 105.389 & 105.479 & 0.436 \\
+  			\hline
+  			Spain & 47.609 & 47.859 & 48.671 & 0.366 \\
+  			\hline
+		\end{tabular}
+	\caption[A table]{Average roundtrip times to various countries from the SNE laboratory. The time is in ms.}
+\end{table}
+
+\paragraph{}
+From this data we can assume a request will take somewhere between 10 milliseconds and 300 milliseconds (we are sure we could find cases worse than the ones presented but that data already gives a good estimation on the relation between distance and time). However, considering these services are most probably replicated in multiple places around the world, we can expect the average request to be on the range of 100 milliseconds or less.
+
+\paragraph{}
+Considering that these computers could make parallelized requests, we estimate that running 30 low-memory threads is a reasonable value (the data transaction between the bots and the URLS servers could be limited to just the request URL and the long URL retrieval, making each request length about 20 bytes and each response had an average of 100 bytes for goo.gl and 110 bytes for bit.ly, not considering the length of TCP/IP or HTML headers).
+
+\paragraph{}
+All the presented data up to this point is synthesized as follows:
+
+\begin{itemize}
+
+\item  For goo.gl URLs, where we had a address space of 5.68 x 10¹⁰, we can reduce that number to 5.68 x 10⁶ by considering the botnet of 10⁴ computers, assigning a different range of addresses to each infected computer. Each computer works with a dataset of 5.68 x 10⁶ addresses, and considering they run 30 threads at a speed of one request per 100ms, we get up to 300 requests per second. The conclusion for this calculation is that it would take 1.9x10⁴ seconds to get the entire database of URLs, which translates to roughly 5 hours and 20 minutes.
+
+\item  Following the same procedure as with the goo.gl case, for bit.ly we end up with a total time of 328 hours and 30 minutes, which means crawling the whole set of data would take almost two full weeks (14 days).
+
+\end{itemize}
+
+\paragraph{}
+These times mean that it is feasible to get the whole database of both services in a reasonable amount of time (specially goo.gl, which takes just a few hours). We also need to consider the fact that attacks can be started with just a portion of that set, and that these times can easily be further decreased by increasing the botnet size or trying to localize the infected computers on a certain location close to the URLS servers.
+
 \subsection{What have we found?}
+
+\paragraph{}
+With a basic study of the data retrieved (meaning that we believe there could be many more issues to be exploited there through the usage of more complex tools) using the methods described on section 3.2, we found out the following problems:
+
+\begin{itemize}
+
+\item  Username and login pairs embedded as plaintext in URLs: We found many instances of this issue from various sites, some of them being more dangerous as the usernames made references to email accounts or personal identification numbers, which could be used to track them down and exploit other services those persons use.
+
+\item  Google maps location and timestamps sharing: Some applications use the URLS services to share information about a person visiting, for example, a certain café or shop and publish them in limited-length services such as SMS or Twitter. As the URLS can offer information on when a link was created, this can lead to a violation of a person intimacy, by providing information of where they were at a certain hour, even if these applications do not provide that information.
+
+\item  Retrieving unprotected files from websites or FTP servers: During our research we decided to search for certain types of files on the URLs, such as Microsoft Excel files. We retrieved many unprotected files from FTP servers that had information about customers such as telephone numbers or addresses, and we even managed to find account balances. This constitutes a major vulnerability that can be directly exploited by an attacker without any further effort.
+
+\item  HTML crawling: During our research we didn't have time to go in depth with this kind of attack, as it is more complex than the others and requires extra time and resources to be performed. However, from the URL crawling we could see many URLs having session identifiers on them that could lead to data leakage, meaning this kind of attack could be proposed as future work for in relation to this project.
+
+\end{itemize}
+
+****** I haven't added Xavi's references for the above from [1]-[7]. They are in the file he sent till we figure out if we will add them as footnotes or put them in the bibliography. ***********
 
 \subsection{User Privacy Implications}
 
@@ -155,19 +309,89 @@ As for the analysis of the URLs as independant links and their respective data, 
 
 \section{Suggestions}
 
- After studying our research results and having witnessed what kind of options and possible offensive routes there are available for an attacker to choose from, we have some suggestions
+\paragraph{}
+ After studying our research results and having witnessed what kind of options and possible offensive routes are available for an attacker to choose from, we have thought of some helpful suggestions that could improve the user privacy issues shown above and also help avoid careless mistakes which could expose system vulnerabilities.
 
 \subsection{Awareness}
 
+\paragraph{}
+ First and foremost, we strongly believe that most of the issues with User Privacy could be avoided or at least be reduced by a great amount if the users were aware of the fact that the URLs they choose to shorten are and always will remain public information for anybody to collect and access.
+ 
+\paragraph{}
+ While Goo.gl states in its webpage "All goo.gl URLs and click analytics are public and can be accessed by anyone.", Bit.ly does not mention anything in particular that could warn the users of the potential risks of sharing something personal without a real understanding of how the service works or for how long it will be available for the public.
+
+\paragraph{}
+ Heavily used services like these need to help users protect their privacy and inform them of how they operate with clear and precise statements. Of course the users need to also be able to comprehend the actual meaning of the word public and realize the implications and consequences of storing their information in a public medium. What they want their friends to see, might not be seen by just their friends.
+
 \subsection{Removal of confidential Information}
 
+\paragraph{}
+ We have already discussed the search patterns we used to discover sensitive information for this research. These and even more could be used by these services to check their own database systems for entries that could contain confidential information and then remove them or handle them in a way they deem appropriate. This surely has not been implemented in the past, but it is never too late to begin.
+
 \subsection{Automated Warnings}
+
+\paragraph{}
+Another way to preserve user privacy and avoid storing links with personal information, is live-checking the long URL before it is shortened. If for example a user chooses to shorten a URL which contains his or her password information in plaintext, then the system could intelligently decline to offer the shortening service. This way the users can stop and think for a moment what they are trying to share and maybe even gain some insight into how badly certain systems they are using, are configured.
+
+\subsection{Expiration Dates}
+
+\paragraph{}
+The short URLs could have an expiration date. As aforementioned, the rise in the use of such services came from social media. A lot of people choose to shorten URLs to share them over Twitter due to the limited amount of characters per message. But just like the way that the Internet popularity changes rapidly, the users tend to forget about those links after the trend has passed. That means that most of those links will have a high visitation rate close to their creation date, which will then start to drop as time progresses.
+
+\paragraph{}
+Our proposal would be to actually use the statistics and analytics that the APIs of the URL shortening services offer. One could call the APIs and check the creation date of a link, the amount of clicks it has gotten and be able to judge by those metrics if the links are still being used or not. If the fact that these links are no longer visited is evident, then they could be removed by the database and the URLs could actually be reused after a specific amount of time.
+
+\subsection{Deleting URLs}
+
+\paragraph{}
+Finally, another solution would be to allow users to delete their shortened URLs. This type of services give the user the ability to remove URLs from their history or archive them, but the information still remains public and freely accessible to anyone who can find it.
 
 \section{Conclusions}
 
 \section{Future Work}
 
 \section{References}
+
+\bibliography{ssn-report}
+Wikipedia Definition:\\
+$http://en.wikipedia.org/wiki/URL_shortening$
+\\
+
+The case of URL Shorteners: How safe are they?\\
+$https://www.stopthehacker.com/2010/02/19/analyzing-url-shorteners/$
+\\
+
+What to consider before shortening URLs?\\
+$http://www.polyu.edu.hk/ags/Newsletter/news1311/article3/index3.php$
+\\
+
+URL shortening: Yet another security risk.\\
+$http://www.techrepublic.com/blog/it-security/url-shortening-yet-another-security-risk/$
+\\
+
+How to spy on campaigns of competitors who use URL shorteners.\\
+$http://www.zdnet.com/article/how-to-spy-on-campaigns-of-competitors-who-use-url-shorteners/$
+\\
+
+Stranger Danger: Exploring the Ecosystem of Ad-Based URL Shortening Services.\\
+$https://lirias.kuleuven.be/bitstream/123456789/440951/1/strangerdanger_www2014.pdf$
+\\
+
+Short Links under Attack: Geographical Analysis of Spam in a URL Shortener Network.\\
+$http://kti.tugraz.at/staff/markus/documents/2012_HT2012_Short_links.pdf$
+\\
+
+Two Years of Short URLs Internet Measurement: Security Threats and Countermeasures.\\
+$https://www.cs.ucsb.edu/~chris/research/doc/www13_shorturls.pdf$
+\\
+
+Security and Privacy Implications of URL Shortening Services.\\
+$http://w2spconf.com/2011/papers/urlShortening.pdf$
+\\
+
+we.b: The web of short URLs.\\
+$http://www.csd.uoc.gr/~hy558/papers/web.pdf$
+\\
 
 \section{Appendix}
 
