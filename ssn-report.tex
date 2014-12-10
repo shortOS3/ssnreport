@@ -130,28 +130,28 @@ Another example was the investigation of specific countermeasures take from thes
 
 \subsection{Ethical Implications}
 In any security related research, it is very likely to come across very sensitive data that has to be treated with care in order not to get to the wrong hands. Any findings with particular security significance will not be disclosed in public and if needed the appropriate parties will be notified. Any data collected during this research will be kept safely in University infrastructure, and appropriate measures will be taken to prevent leakage. It is however useful to note that all data gathered are easily retrievable by anyone since they are public data.
-
+\newpage
 \section{Shortening Services}
 
 \subsection{Goo.gl}
 
 \subsection{Bit.ly}
 	
-\section{Research Methodologies}
+\section{Research Methodology}
 
 \paragraph{}
-To get a better understanding about what could be found on these URLs, we designed scripts in both Go and Python for the goo.gl and bit.ly shorteners respectively, aimed to retrieve a subset of the original URLs stored on those services.
+In order to perform a mapping between the short and long URLs, we developed simple software to perform the expansion of the URLs, aiming to retrieve a subset of the original URL information stored on those services. The languages chosen for that operation are Go and Python for the goo.gl and bit.ly shortening services respectively. 
 
 \paragraph{}
-To that end we used the APIs provided by those providers, although it is worth mentioning at this point -and this will be discussed later on- that it is not required to use those APIs to retrieve that data. The reason to use those APIs was to play within the rules of these services, to not raise issues between the SNE and the organizations behind the services.
+To that end we used the public web APIs provided by those services. From the functionality exposed through these APIs, the URL expansion capabilities were only used. It is worth mentioning at this point, as will be discussed in later chapters as well, that the use of the public APIs to retrieve the data is not mandatory as one could call the short URLs and collect the redirect repsonses. The reason behind the use of these APIs was to follow the path recommended by the services, that would grant us enough data to conduct our research. High traffic directed to the "front door" of the services, originating from a single IP-space could be presumed as an attack and lead to trouble such as rate limiting, blocking or even legal issues that could involve the University of Amsterdam, something which is of course highly undesirable. 
 
 \subsection{URL Crawling}
 
 \paragraph{}
-Both services provided APIs that allowed easy retrieval of the URLs stored on their databases as well as other features (like additional information about these URLs such as their creation time) that we did not directly use on our project, but that could still prove a security issue for the data there.
+Both services expose Web APIs that allow easy retrieval of the URLs stored on their databases. Moreover they provide other interesting features, like additional information about these URLs such as creation times, number of clicks, etc. Those features were not used directly on this project, but can still provide interesting security information if handled correctly. 
 
 \paragraph{}
-The APIs had a limitation on how many queries they could take per amount of time, the most significant being the hourly limit, which was 1 million queries for goo.gl and about 4,000 for bit.ly (the value of bit.ly limit was not stated on their website, so we just calculated an approximation). At the end of the designed week for crawling purposes, we had retrieved 7 million URLs from goo.gl and 3 million from bit.ly.
+The APIs limit their usage according how many calls they allow to receive from a certain authenticated user per some fixed amount of tim. The goo.gl public API has a generous limit of 1.000.000 calls a day per API key. The amount of requests per second is by default set to 1 but this can easily be configured to tens of thousands via the web based developer console. As for bit.ly, the only limit stated in its official documentation is that of 5 concurrent connections. There is however a significant hourly limit, of  about 4,000 requests. This value is not stated on the documentation website, so we just calculated an approximation. At the end of the designed week for crawling purposes, we had retrieved 7 million unique, non-empty URLs from goo.gl and 3 million from bit.ly.
 
 \subsubsection{Goo.gl}
 
