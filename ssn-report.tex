@@ -10,7 +10,7 @@
 \usepackage[colorinlistoftodos]{todonotes}
 \usepackage{ragged2e}
 \usepackage[none]{hyphenat}
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
 %\usepackage{fullpage}
 
 \begin{document}
@@ -120,16 +120,16 @@ The problem becomes even more intense when, not only users unaware of the public
 Most of the previous work which has been done on URL shortening services is based on the use of short URLs and its correlation with SPAM and phishing techniques, whether that is to prevent spamming or to explain how these two are combined. One example of the latter is how the original URL is masked in a way that the receiver of such a malicious email will not be able to realize the fact that by clicking such a link, he or she will not be redirected to a legitimate website.
  
 \paragraph{}
-Another example was the investigation of specific countermeasures take from these particular services to defend against the manipulation of the shortened URLs for malicious purposes; also trying to determine and statistically analyse the extent of spamming given certain geographical locations in which the services were used.
+Another example was the investigation of specific countermeasures taken from these particular services to defend against the manipulation of the shortened URLs for malicious purposes; also trying to determine and statistically analyse the extent of spamming given certain geographical locations in which the services were used.
 
 \paragraph{}
- As for the analysis of the URLs as independent links and their respective data, the primary focus was on short URLs collected by popular social media such as Twitter. And the statistics revolved around their popularity lifetimes and the expectancy of the amount of clicks these URLs would get.
+ As for the analysis of the URLs as independent links and their respective data, the primary focus was on short URLs collected by popular social media such as Twitter. And the statistics revolved around their popularity lifetimes along with the expectancy of the amount of clicks these URLs would get.
  
 \paragraph{}
  An interesting example of this was to use these services to monitor certain campaigns from companies that someone deems as competitors. Google search queries were used to find results from the website of a specific company that contain the names goo.gl or bit.ly in combination with the use of certain keywords. After obtaining a positive result, one could use these shortened links to study their metrics and then judge (e.g. by the amount of clicks) how well that particular campaign is going.
 
 \subsection{Ethical Implications}
-In any security related research, it is very likely to come across very sensitive data that has to be treated with care in order not to get to the wrong hands. Any findings with particular security significance will not be disclosed in public and if needed the appropriate parties will be notified. Any data collected during this research will be kept safely in University infrastructure, and appropriate measures will be taken to prevent leakage. It is however useful to note that all data gathered are easily retrievable by anyone since they are public data.
+In any security related research, it is very likely to come across very sensitive data that has to be treated with care in order not to fall into the wrong hands. Any findings with particular security significance will not be disclosed in public and if needed the appropriate parties will be notified. Any data collected during this research will be kept safely in University infrastructure, and appropriate measures will be taken to prevent leakage. It is however useful to note that all data gathered are easily retrievable by anyone since they are public data.
 \newpage
 \section{Shortening Services}
 
@@ -145,13 +145,13 @@ In order to perform a mapping between the short and long URLs, we developed simp
 \paragraph{}
 To that end we used the public web APIs provided by those services. From the functionality exposed through these APIs, the URL expansion capabilities were only used. It is worth mentioning at this point, as will be discussed in later chapters as well, that the use of the public APIs to retrieve the data is not mandatory as one could call the short URLs and collect the redirect repsonses. The reason behind the use of these APIs was to follow the path recommended by the services, that would grant us enough data to conduct our research. High traffic directed to the "front door" of the services, originating from a single IP-space could be presumed as an attack and lead to trouble such as rate limiting, blocking or even legal issues that could involve the University of Amsterdam, something which is of course highly undesirable. 
 
-\subsection{URL Crawling}
+\subsection{URL Expansion}
 
 \paragraph{}
 Both services expose Web APIs that allow easy retrieval of the URLs stored on their databases. Moreover they provide other interesting features, like additional information about these URLs such as creation times, number of clicks, etc. Those features were not used directly on this project, but can still provide interesting security information if handled correctly. 
 
 \paragraph{}
-The APIs limit their usage according how many calls they allow to receive from a certain authenticated user per some fixed amount of tim. The goo.gl public API has a generous limit of 1.000.000 calls a day per API key. The amount of requests per second is by default set to 1 but this can easily be configured to tens of thousands via the web based developer console. As for bit.ly, the only limit stated in its official documentation is that of 5 concurrent connections. There is however a significant hourly limit, of  about 4,000 requests. This value is not stated on the documentation website, so we just calculated an approximation. At the end of the designed week for crawling purposes, we had retrieved 7 million unique, non-empty URLs from goo.gl and 3 million from bit.ly.
+The APIs limit their usage according how many calls they allow to receive from a certain authenticated user per some fixed amount of tim. The goo.gl public API has a generous limit of 1.000.000 calls a day per API key. The amount of requests per second is by default set to 1 but this can easily be configured to tens of thousands via the web based developer console. As for bit.ly, the only limit stated in its official documentation is that of 5 concurrent connections. There is however a significant hourly limit, of  about 4,000 requests. This value is not stated on the documentation website, so we just calculated an approximation. At the end of the designed week for data collection purposes, we had retrieved 7 million unique, non-empty URLs from goo.gl and 3 million from bit.ly.
 
 \subsubsection{Goo.gl}
 
@@ -168,7 +168,7 @@ Another issue we had to fix was to make the code exception-safe and thread-safe.
 
 \begin{itemize}
 
-\item  Safety on exceptions: Exceptions while doing the crawling were quite common and they needed to be handled correctly, as otherwise threads could die or start unpredictable behaviors. Exceptions ranged from encoding problems due to strange characters on URLs (Arabic or Japanese characters, for example) to queries returning errors (such as timeouts or reaching the limit set for a time range).
+\item  Safety on exceptions: Exceptions while doing the URL expansion were quite common and they needed to be handled correctly, as otherwise threads could die or start unpredictable behaviors. Exceptions ranged from encoding problems due to strange characters on URLs (Arabic or Japanese characters, for example) to queries returning errors (such as timeouts or reaching the limit set for a time range).
 
 \item  Safety on threads: Threads worked independently from each other, but they were using the same output files for their results, to prevent excessive usage of memory and keep the data organized. This constant writing to the output files from different sources had to be managed carefully to avoid data corruption.
 
@@ -238,7 +238,7 @@ A potential attacker could use a botnet to retrieve addresses. A botnet attack i
 
 \item  First, the obvious advantage of retrieving URLs faster if the botnet is configured properly.
 
-\item  And second, but not less important, it makes a lot more difficult for the URLS companies to detect the crawling and take prevention actions.
+\item  And second, but not less important, it becomes a lot more difficult for the URLs companies to detect the collecting and expanding process and take prevention actions.
 
 \end{itemize}
 
@@ -282,7 +282,7 @@ All the presented data up to this point is synthesized as follows:
 
 \item  For goo.gl URLs, where we had a address space of 5.68 x 10¹⁰, we can reduce that number to 5.68 x 10⁶ by considering the botnet of 10⁴ computers, assigning a different range of addresses to each infected computer. Each computer works with a dataset of 5.68 x 10⁶ addresses, and considering they run 30 threads at a speed of one request per 100ms, we get up to 300 requests per second. The conclusion for this calculation is that it would take 1.9x10⁴ seconds to get the entire database of URLs, which translates to roughly 5 hours and 20 minutes.
 
-\item  Following the same procedure as with the goo.gl case, for bit.ly we end up with a total time of 328 hours and 30 minutes, which means crawling the whole set of data would take almost two full weeks (14 days).
+\item  Following the same procedure as with the goo.gl case, for bit.ly we end up with a total time of 328 hours and 30 minutes, which means expanding the whole set of data would take almost two full weeks (14 days).
 
 \end{itemize}
 
@@ -298,11 +298,11 @@ With a basic study of the data retrieved (meaning that we believe there could be
 
 \item  Username and login pairs embedded as plaintext in URLs: We found many instances of this issue from various sites, some of them being more dangerous as the usernames made references to email accounts or personal identification numbers, which could be used to track them down and exploit other services those persons use.
 
-\item  Google maps location and timestamps sharing: Some applications use the URLS services to share information about a person visiting, for example, a certain café or shop and publish them in limited-length services such as SMS or Twitter. As the URLS can offer information on when a link was created, this can lead to a violation of a person intimacy, by providing information of where they were at a certain hour, even if these applications do not provide that information.
+\item  Google maps location and timestamps sharing: Some applications use the URLS services to share information about a person visiting, for example, a certain café or shop and publish them in limited-length services such as SMS or Twitter. As the URLS can offer information on when a link was created, this can lead to a violation of a person's intimacy, by providing information of where they were at a certain hour, even if these applications do not provide that information.
 
 \item  Retrieving unprotected files from websites or FTP servers: During our research we decided to search for certain types of files on the URLs, such as Microsoft Excel files. We retrieved many unprotected files from FTP servers that had information about customers such as telephone numbers or addresses, and we even managed to find account balances. This constitutes a major vulnerability that can be directly exploited by an attacker without any further effort.
 
-\item  HTML crawling: During our research we didn't have time to go in depth with this kind of attack, as it is more complex than the others and requires extra time and resources to be performed. However, from the URL crawling we could see many URLs having session identifiers on them that could lead to data leakage, meaning this kind of attack could be proposed as future work for in relation to this project.
+\item  HTML scraping: During our research we didn't have time to go in depth with this kind of attack, as it is more complex than the others and requires extra time and resources to be performed. However, from the URL expansion we could see many URLs having session identifiers on them that could lead to data leakage, meaning this kind of attack could be proposed as future work for in relation to this project.
 
 \end{itemize}
 
