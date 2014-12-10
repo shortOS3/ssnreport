@@ -11,6 +11,7 @@
 \usepackage{ragged2e}
 \usepackage[none]{hyphenat}
 \usepackage[hidelinks]{hyperref}
+\usepackage{listings}
 %\usepackage{fullpage}
 
 \begin{document}
@@ -203,8 +204,6 @@ We also included a basic network communication utility on the script to enable c
 \paragraph{}
 Once the URLs are retrieved, there are many ways that information can be handled, and different levels of depth to perform searches.
 
-\subsubsection{RegEx}
-
 \subsubsection{URL Data}
 
 \paragraph{}
@@ -225,6 +224,58 @@ A deeper search can be done by retrieving the actual HTML or documents behind th
 
 \subsubsection{MongoDB Queries}
 
+\subsubsection{RegEx}
+
+\paragraph{}
+After discussing what can be done to search for and access information in the collected data, we can continue to the way we performed those searches and the results we obtained. It should be reminded that since goo.gl does not check if a long URL has already been shortened, we observed that the same URLs had been shortened more than once
+
+\paragraph{}
+Some the of the keywords used to reveal sensitive information have already been hinted above. This is the list of our searches.
+
+\begin{itemize}
+
+\item \textbf{Password, pass or passwd.} We found a lot of instances of shared URLs which had the clear text passwords or just the hash of the password and could give us access to the account of the person sharing that URL. There were also a lot of password reset URLs, sometimes from the same websites. And quite a few shadowed passwords.
+
+\item \textbf{Username.} The majority of the occurances were in combination with the above.
+
+\item \textbf{Mail.} This returned multiple results of email addresses and accounts. The fact that people try to share the contents of personal emails became quite obvious.
+
+\item \textbf{Admin or administrator.} Many results contained the word admin in the URL and sometimes providing access in parts of websites that are not meant to be seen and accessed by the public.
+
+\item \textbf{Login.} Usually in combination with the above and it sometimes allowed us to see session IDs.
+
+\item \textbf{Maps.} A large amount of data was Google Maps (and other internet maps) links that contained exact coordinates of a person's whereabouts. Some of them were used by third party applications that created a link when the user would "check in" somewhere, which if combined with the statistics that the URL shortening services provide, could reveal exactly when that person visited a particular place.
+
+\item \textbf{Common service names.} We searched for keywords such as mailserver, webserver etc. Some of these services just linked directly to a login page.
+
+\item \textbf{Ftp.} Many people might choose to share a file from their public ftp server. However when that server is not configured properly, one can gain access to other parts of it. When we searched for FTP servers, we were able to find exact IP addresses and ports that are used to access them. Also by just editing parts of the URL we could visit other parts of the servers.
+
+\item \textbf{Exploitable Information.} URL links with the file extensions like .php, .jsp, .aspx etc can contain information which could be exploited.
+
+\item \textbf{Cgi-bin.} Shared URLs which lead to cgi-bin scripts.
+
+\item \textbf{.ini} Configuration files of certain platforms or software that were shared.
+
+\item \textbf{Network Gear Vendor Names.} We searched for keywords such as Cisco, Juniper etc. Some of the results we found were logfiles of certain routers after updates which could also lead back to an FTP server.
+
+\item \textbf{Company/Bank/Institute Names} The same idea as above. We are glad to say that the majority of the results we found from banks did not contain sensitive information. We did witness some companies sharing internal links to systems that are solely aimed to their staff.
+
+\item \textbf{IP addresses and ports} We were able to find a lot of IP addresses shared and many of them in combination with open ports of the webservers.
+
+\item \textbf{goo.gl or bit.ly.} A fun search was to see if people tried to shorten already short URLs.
+
+\end{itemize}
+
+\paragraph{}
+An example of the above searches is the following grep command with the regular expressions of filtering long URLs with IP addresses in them:
+
+\paragraph{}
+grep -E "(http://[1-2]{0,1}[0-9]{2}[.][1-2]{0,1}[0-9]{2}
+[.][1-2]{0,1}[0-9]{2}[.][1-2]{0,1}[0-9]{2})"
+
+\paragraph{}
+Using the aforementioned keywords, we were able to discover quite a lot of interesting information with some sensitive data which of course for confidentiality reasons can not be mentioned in this report. We do have the intention of contacting the related parties and notifying them about these privacy and vulnerability issues so they can take the seriousness of the matter into consideration and maybe find a solution to this issue.
+
 \section{Results}
 
 \paragraph{}
@@ -244,8 +295,8 @@ First of all, we wanted to make a calculation on how much time would an attacker
 	\centering
 		\begin{tabular}{ | l | c | c | c |}
  			\hline
-			  & Goo.gl & Bit.ly \\ \hline
- 			Address Space & 62⁶ directions = 5.68 x 10¹⁰ & 62⁷ directions = 3.52 x 10¹² \\
+			  & \textbf{Goo.gl} & \textbf{Bit.ly} \\ \hline
+ 			\textbf{Address Space} & 62⁶ directions = 5.68 x 10¹⁰ & 62⁷ directions = 3.52 x 10¹² \\
  			\hline
   		\end{tabular}
 	\caption[A table]{Address Space for the goo.gl and bit.ly services.}
@@ -376,7 +427,25 @@ Finally, another solution would be to allow users to delete their shortened URLs
 
 \section{Conclusions}
 
+\paragraph{}
+During this research we learned how the URL shortening services operate and how the information publicized from users is being treated from them. These services operate in, a what seems, random manner when it comes to creating URLs but also with a certain level of sequentiality, which is obvious in the way the short URLs size increases.
+
+\paragraph{}
+We witnessed the amount of available information to an attacker and discussed the consequences the use of these kind of services may have to the users' privacy and possible exposure of vulnerabilities in various systems which could be accessed in an unintentional and non standard manner.
+
+\paragraph{}
+Moreover we explained how feasible a much more intrusive approach is in collecting all this data (and the entirety of it if the time limit is large enough), how much time it would cost for someone to obtain this information and more importantly the size limitation that would occur in storing it.
+
 \section{Future Work}
+
+\paragraph{}
+In conclusion, we believe that our research could very well have a continuation as our limited amount of time did not allow us to research all the aspects that we initially hoped to. As already explained, it would not be very difficult for someone to gather the entire dataset of short URLs and perform an exhaustive research, given a large amount of time to collect the data and interact with it to discover all the sensitive information there is to be found if that was performed with some rather questionable media (e.g. botnets). If someone would want to do the same with a more honest approach, this research would take a lot longer, mostly because of the sheer amount of data there is to be found.
+
+\paragraph{}
+In addition we believe that there is a lot more information to be discovered in the HTML contents of these URLs. For obvious reasons such as lack of time and not less importantly legality, invasion of privacy and such we did not have the luxury of investigating this side of the research. 
+
+\paragraph{}
+The main reason we believe there is a future for this research is that the dataset keeps growing constantly and unless there is a new method of sharing long URLs introduced soon, then the media which offer this type of service will not stop or change their use of it.
 
 \section{References}
 
