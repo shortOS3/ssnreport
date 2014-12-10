@@ -139,7 +139,7 @@ In any security related research, it is very likely to come across very sensitiv
 \subsection{Goo.gl}
 
 \subsection{Bit.ly}
-	
+\newpage	
 \section{Research Methodology}
 
 \paragraph{}
@@ -164,7 +164,7 @@ The APIs limit their usage according how many calls they allow to receive from a
 For the expansion of the URLs shortened by the Google URL shortener, we developed a simple program in Go. This language was chosen for its speed, rich Web functionality and very strong concurrency model. 
 
 \paragraph{}
-Since the goo.gl service uses Base62 encoded short URL IDs 4 to 6 characters long and we are bound by the usage limitation of the API (1.000.000 requests per day), each run expands $62^{3}$ = $238,328$ short URLs per run. To achieve this the user initialises the execution of the program with a constant prefix, 1 to 3 characters long and the software exhaustively searches through every Base62 combination for the remaining 3 characters.
+Since the goo.gl service uses Base62 encoded short URL IDs 4 to 6 characters long and we are bound by the usage limitation of the API (1.000.000 requests per day), each run expands $62^{3}$ = $238,328$ short URLs per run. To achieve this the user initialises the execution of the program with a constant prefix, 1 to 3 characters long and the software exhaustively searches through every Base62 combination for the remaining 3 characters. In addition to the starting search prefix the user has to provide with their API key as command line parameter. If one of the parameters is missing or is not well formed an error message depicting the correct usage of the software is printed and the execution stops. 
 
 \paragraph{}
 The software utilises the concurrency model of Go which consists of very lightweight processes sharing the same address space called "goroutines". Due to the nature of this model thousands of goroutines can run concurrently, with minimal overhead for the system. 
@@ -179,19 +179,19 @@ Since Go is able to span tens of thousands concurrent goroutines and although th
 \subsubsection{Bit.ly}
 
 \paragraph{}
-For the bit.ly crawler we used a more standard approach using regular parallel computing methods available on the Python Standard Library, in conjunction with the bit.ly API for Python. The priority for this project was to develop a very modular program (as bit.ly hourly limit was low enough that performance didn't really matter) so that the code could be expanded to allow for more complex utility such as also downloading HTMLs or documents from the retrieved URLs.
+For the bit.ly crawler we used a more standard approach using regular concurrent programming methods available on the Python Standard Library, in conjunction with the bit.ly API for Python. The priority for this project was to develop a very modular program (as bit.ly hourly limit was low enough that performance didn't really matter) so that the code could be expanded to allow for more complex utility such as also downloading HTMLs or documents from the retrieved URLs.
 
 \paragraph{}
-The first versions of this crawler used new processes for the parallel computing. However this caused some issues that were difficult to fix in the short time we had for this project, and we decided to switch to threads. In Python this can be a huge setback, as the Threading library runs all generated threads on the same processor, but in this environment the processing speed was far from being a bottleneck for the performance, compared to the network communication time between our clients and the server.
+The first versions of this crawler used new processes for concurrent execution. However this caused some issues that were difficult to fix in the short time available for this project, and we decided to switch to threads. In Python this can be a huge setback, as the Threading library runs all generated threads on the same processor, but in this environment the processing speed was far from being a performance bottleneck, compared to the network communication time between our clients and the server.
 
 \paragraph{}
 Another issue we had to fix was to make the code exception-safe and thread-safe.
 
 \begin{itemize}
 
-\item  Safety on exceptions: Exceptions while doing the URL expansion were quite common and they needed to be handled correctly, as otherwise threads could die or start unpredictable behaviors. Exceptions ranged from encoding problems due to strange characters on URLs (Arabic or Japanese characters, for example) to queries returning errors (such as timeouts or reaching the limit set for a time range).
+\item  Safety on exceptions: Exceptions during the execution the URL expansion software were quite common and needed to be handled correctly, as otherwise threads could die or start behaving unpredictably. Exceptions ranged from encoding problems due to strange characters on URLs (Arabic or Japanese characters, for example) to queries returning errors (such as timeouts or reaching the limit set for a time range).
 
-\item  Safety on threads: Threads worked independently from each other, but they were using the same output files for their results, to prevent excessive usage of memory and keep the data organized. This constant writing to the output files from different sources had to be managed carefully to avoid data corruption.
+\item  Safety on threads: Threads worked independently from each other, but used the same output files for their results, to prevent excessive usage of memory and keep the data organised. This constant writing to the output files from different sources had to be managed carefully to avoid data corruption.
 
 \end{itemize}
 
@@ -224,7 +224,7 @@ A deeper search can be done by retrieving the actual HTML or documents behind th
 \end{itemize}
 
 \subsubsection{MongoDB Queries}
-
+\newpage
 \section{Results}
 
 \paragraph{}
@@ -334,7 +334,7 @@ With a basic study of the data retrieved (meaning that we believe there could be
 \subsection{Sysem Security}
 
 \subsection{Stats}
-
+\newpage
 \section{Suggestions}
 
 \paragraph{}
