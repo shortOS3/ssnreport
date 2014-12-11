@@ -101,12 +101,11 @@ The research methodologies and software tools used for the project are described
 \paragraph{}
 URL shortening refers to the technique of taking any HTTP Uniform Resource Locator (URL) and producing a shortened version that links to the same Web resource, by issuing an HTTP redirect response. The purpose of this technique is to transform large (sometimes hundreds of characters long) and very descriptive URLs to something that is much sorter, easier to remember and be shared in an environment where typing space is limited (social media, mobile devices, instant messengers, etc.)
 \paragraph{}
-This technique has been around since the early 2000s but became really popular by the coming of Twitter, a social medium that only allowed a certain number of characters to be typed in each post (Tweet) of the user, and which started automatically shortening URLs more than 26 characters long. The first website to provide shortening services was tinyurl.com, with similar services including, among others, wp.me (by Wordpress), goo.gl (by Google) and bit.ly, with the last two being the most popular. 
+This technique has been around since the early 2000s, when the first US patent was filled, but became really popular by the coming of Twitter, a social medium that only allowed a certain number of characters to be typed in each post (Tweet) of the user, and which started automatically shortening URLs more than 26 characters long. The first website to provide shortening services was tinyurl.com, with similar services including, among others, wp.me (by Wordpress), goo.gl (by Google) and bit.ly, with the last two being the most popular. 
 \paragraph{}
-This report focuses on certain security issues that arise by the use of such services. The main issue is that the databases kept by these services in order to issue the correct redirects (from short to long links) are public and easily accessible via a simple web client. In case the users of these services carelessly input sensitive data, this data becomes public and easy to retrieve by anyone.
+This report focuses on certain security issues that arise by the use of such services. The main problem is that the databases kept by these services in order to issue the correct redirects (from short to long links) are public and easily accessible via a simple web client. In case the users of these services carelessly input sensitive data, this data becomes public and easy to retrieve by anyone.
 \paragraph{} 
 The rest of this chapter is dedicated to describing in detail the problem we will be examining, presenting the previous work on this domain and mentioning certain ethical implications that arise from our study. The second chapter is a description of the URL shortening methods in general and the two services that have been used in this study (goo.gl and bit.ly) in particular. The third chapter presents the research methods and software tools that we have designed, developed and used in this project. The fourth chapter demonstrates the results that have been produced by our research and the security implications that arise in terms of user privacy and system security. The next chapter is a discussion about suggestions and solutions that could help mediate the security problems of such services. The last chapter summarises the conclusions of the project and proposes ways to improve the current work. 
-\newpage
 \subsection{Problem Description}
 
 \paragraph{}
@@ -136,6 +135,16 @@ Another example was the investigation of specific countermeasures taken from the
 In any security related research, it is very likely to come across very sensitive data that has to be treated with care in order not to fall into the wrong hands. Any findings with particular security significance will not be disclosed in public and if needed the appropriate parties will be notified. Any data collected during this research will be kept safely in University infrastructure, and appropriate measures will be taken to prevent leakage. It is however useful to note that all data gathered are easily retrievable by anyone since they are public data.
 \newpage
 \section{Shortening Services}
+\paragraph{}
+Each long URL that gets shortened is associated with a unique ID, which is the part after the top-level domain name, for example the short URL http://bit.ly/1ypDUGk has a ID of 1ypDUGk. 
+\paragraph{}
+Each time a short URL is followed by a web client the corresponding shortening service issues a HTTP redirect response. The redirection instruction sent to the client can contain in its header the HTTP status 301 (permanent redirect) 302, or 307 (temporary redirect).
+
+\paragraph{}
+There are several techniques to generate unique IDs. Those can be encoded in base 36, assuming 26 letters and 10 numbers or alternatively, if uppercase and lowercase letters are differentiated, then each character can represent a single digit within a number of base 62 (26 + 26 + 10) and each. Each ID can be generated sequentially following the order from 0 to 9 and from Aa to Zz. Another way would be to invoke a hash function or a random number generator so that the ID sequence is not predictable. Some services allow users to propose their own keys. For example an authenticated user of bit.ly could shorten the URL https://www.os3.nl as bit.ly/ohesthree. 
+
+\paragraph{}
+Some shortening services pose restrictions on the format of the URLs to be shortened, that including the protocols supported for shortening. Others seem not to bother with checking the format of the URL, with goo.gl in particular being able to create shorthand links even for plain text, so long that it does not contain spaces. 
 
 \subsection{Goo.gl}
 
