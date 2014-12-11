@@ -224,43 +224,45 @@ A deeper search can be done by retrieving the actual HTML or documents behind th
 
 \subsubsection{MongoDB Queries}
 
-\subsubsection{RegEx}
+\subsubsection{Regular Expressions}
 
 \paragraph{}
 After discussing what can be done to search for and access information in the collected data, we can continue to the way we performed those searches and the results we obtained. It should be reminded that since goo.gl does not check if a long URL has already been shortened, we observed that the same URLs had been shortened more than once
 
 \paragraph{}
-Some the of the keywords used to reveal sensitive information have already been hinted above. This is the list of our searches.
+Some the of the keywords used to reveal sensitive information have already been hinted above. This is the list of our searches along with what we were hoping and expecting to find.
 
 \begin{itemize}
 
-\item \textbf{Password, pass or passwd.} We found a lot of instances of shared URLs which had the clear text passwords or just the hash of the password and could give us access to the account of the person sharing that URL. There were also a lot of password reset URLs, sometimes from the same websites. And quite a few shadowed passwords.
+\item \textbf{Password, pass or passwd.} Our first search was to see if we could possibly discover clear text passwords or even the hash of them that could be used in a replay attack.
 
-\item \textbf{Username.} The majority of the occurances were in combination with the above.
+\item \textbf{Username.} We were hoping to discover user credentials that were sent over the line without being encrypted to protect them.
 
-\item \textbf{Mail.} This returned multiple results of email addresses and accounts. The fact that people try to share the contents of personal emails became quite obvious.
+\item \textbf{Mail.} In combination with the above, we were interested in seeing all types of user information that could be collected.
 
-\item \textbf{Admin or administrator.} Many results contained the word admin in the URL and sometimes providing access in parts of websites that are not meant to be seen and accessed by the public.
+\item \textbf{Admin or administrator.} Similar case with the aforementioned username. However we were hoping to obtain information that would lead to parts of websites which should not be accessed by simple visitors.
 
-\item \textbf{Login.} Usually in combination with the above and it sometimes allowed us to see session IDs.
+\item \textbf{Login.} Usually in combination with the above. Also to see whether or not we could record session IDs.
 
-\item \textbf{Maps.} A large amount of data was Google Maps (and other internet maps) links that contained exact coordinates of a person's whereabouts. Some of them were used by third party applications that created a link when the user would "check in" somewhere, which if combined with the statistics that the URL shortening services provide, could reveal exactly when that person visited a particular place.
+\item \textbf{Maps.} We were already assuming that many of the results would be location related. Our goal was to investigate whether we could find exact coordinates shared online and what information they would give us if we combined it with the analytics offered by the services such as creation times.
 
-\item \textbf{Common service names.} We searched for keywords such as mailserver, webserver etc. Some of these services just linked directly to a login page.
+ \item \textbf{Common service names.} We searched for keywords such as mailserver, webserver, PhpMyAdmin, MySQL etc.
 
-\item \textbf{Ftp.} Many people might choose to share a file from their public ftp server. However when that server is not configured properly, one can gain access to other parts of it. When we searched for FTP servers, we were able to find exact IP addresses and ports that are used to access them. Also by just editing parts of the URL we could visit other parts of the servers.
+\item \textbf{Ftp.} Our main interest in this was to test whether we can gain access in malconfigured FTP server, just by editing the long URLs and deleting the parts of the files that were shortened and shared.
 
 \item \textbf{Exploitable Information.} URL links with the file extensions like .php, .jsp, .aspx etc can contain information which could be exploited.
 
 \item \textbf{Cgi-bin.} Shared URLs which lead to cgi-bin scripts.
 
+\item \textbf{Shadow.} Shadowed password files that could expose some system vulnerabilities.
+
 \item \textbf{.ini} Configuration files of certain platforms or software that were shared.
 
-\item \textbf{Network Gear Vendor Names.} We searched for keywords such as Cisco, Juniper etc. Some of the results we found were logfiles of certain routers after updates which could also lead back to an FTP server.
+\item \textbf{Network Gear Vendor Names.} We searched for keywords such as Cisco, Juniper etc. We were expecting to find pieces of information from logfiles, maybe some firmware update indications.
 
-\item \textbf{Company/Bank/Institute Names} The same idea as above. We are glad to say that the majority of the results we found from banks did not contain sensitive information. We did witness some companies sharing internal links to systems that are solely aimed to their staff.
+\item \textbf{Company/Bank/Institute Names} The same idea as above. We were hoping to maybe find confidential files or links that would give access to badly configured servers of these companies
 
-\item \textbf{IP addresses and ports} We were able to find a lot of IP addresses shared and many of them in combination with open ports of the webservers.
+\item \textbf{IP addresses and ports} Since there are a lot of testwbesites that do not bother with a domain name, we were interested in seeing what type of information we could retrieve from this which could also lead to network and port scans.
 
 \item \textbf{goo.gl or bit.ly.} A fun search was to see if people tried to shorten already short URLs.
 
@@ -324,7 +326,6 @@ The only parameter that we need to know after defining a botnet size is how many
 We show a brief study we did on this matter in Table 2, using information available on nirsoft.net[2] and RIPE Atlas[3]. We selected various machines on different locations to get an estimation on the request times.
 
 \begin{table}[h]
-	
 		\begin{tabular}{|l|c|c|c|c|c|}
   			\hline
 	  		\textbf{Server Location} & \textbf{Minimum} & \textbf{Average} & \textbf{Maximum} & \textbf{Std Deviation} \\
@@ -364,27 +365,29 @@ These times mean that it is feasible to get the whole database of both services 
 \subsection{What have we found?}
 
 \paragraph{}
-With a basic study of the data retrieved (meaning that we believe there could be many more issues to be exploited there through the usage of more complex tools) using the methods described on section 3.2, we found out the following problems:
+With a basic study of the data retrieved (meaning that we believe there could be many more issues to be exploited there through the usage of more complex tools) using the methods described in section 3.2, we found out the following problems:
 
 \begin{itemize}
 
-\item  Username and login pairs embedded as plaintext in URLs: We found many instances of this issue from various sites, some of them being more dangerous as the usernames made references to email accounts or personal identification numbers, which could be used to track them down and exploit other services those persons use.
+\item \textbf{Username and login pairs embedded as plaintext in URLs:} We found many instances of this issue from various sites, some of them being more dangerous as the usernames made references to email accounts or personal identification numbers, which could be used to track them down and exploit other services those persons use. Moreover, administrator information was shared, sometimes providing access in parts of websites that are not meant to be seen and accessed by the public. However, most importantly we discovered services that contained passwords in clear text or just the hash of the password and could grant access to accounts. In combination with the email accounts and and username information, it could become quite easy for an attacker to use this information for other services these users use and (considering the fact that many people use the same username and password pairs for different websites) access the rest of the services they use. Lastly, quite a few occurances contained password reset links, many times from the same websites.
 
-\item  Google maps location and timestamps sharing: Some applications use the URLS services to share information about a person visiting, for example, a certain café or shop and publish them in limited-length services such as SMS or Twitter. As the URLS can offer information on when a link was created, this can lead to a violation of a person's intimacy, by providing information of where they were at a certain hour, even if these applications do not provide that information.
+\item \textbf{Google maps location and timestamps sharing:} Some applications use the URL services to share information about a person visiting, for example, a certain café or shop and publish them in limited-length services such as SMS or Twitter. As the URL shortening services can offer information on when a link was created, this can lead to a violation of a person's privacy, by providing information of where they were at a certain hour, even if these applications do not provide that information.
 
-\item  Retrieving unprotected files from websites or FTP servers: During our research we decided to search for certain types of files on the URLs, such as Microsoft Excel files. We retrieved many unprotected files from FTP servers that had information about customers such as telephone numbers or addresses, and we even managed to find account balances. This constitutes a major vulnerability that can be directly exploited by an attacker without any further effort.
+\item \textbf{Retrieving unprotected files from websites or FTP servers:} During our research we decided to search for certain types of files on the URLs, such as Microsoft Excel files. That was one way of investigating these systems; the other way was editing the long URL itself and trying to access different directories that would lead us to separate sections of the FTP server and maybe to more sensitive information. We managed to retrieve many unprotected files from FTP servers that had information about customers such as telephone numbers or addresses, and we even managed to find account balances. Also exact IP addresses and port numbers that are used to access them. This constitutes a major vulnerability that can be directly exploited by an attacker without any further effort.
 
-\item  HTML scraping: During our research we didn't have time to go in depth with this kind of attack, as it is more complex than the others and requires extra time and resources to be performed. However, from the URL expansion we could see many URLs having session identifiers on them that could lead to data leakage, meaning this kind of attack could be proposed as future work for in relation to this project.
+\item \textbf{IP addresses and ports:}  We were able to find a lot of IP addresses shared and many of them in combination with open ports of the webservers.
+
+\item \textbf{Common Service Names:} Some of these services just linked directly to a login page of a mailserver or webserver. We discovered links to PhpMyAdmin or MySQL pages. This does not constitute as big a vulnerability as the above, but an attacker would still have the option of attempting to brute force these pages.
+
+\item \textbf{Network Gear Vendor/Software Company Names:} Some of the results we found were logfiles of certain routers after firmware updates, or antivirus database updates which could also lead back to an FTP server. However that mainly lead to the public section of the FTP server.
+
+\item \textbf{company/Bank Names:} We are glad to say that the majority of the results we found from banks did not contain sensitive information. We did however witness some companies sharing internal links to systems that are solely aimed to their staff.
+
+\item \textbf{HTML scraping:} During our research we didn't have time to go in depth with this kind of attack, as it is more complex than the others and requires extra time and resources to be performed. However, from the URL expansion we could see many URLs having session identifiers on them that could lead to data leakage, meaning this kind of attack could be proposed as future work for in relation to this project.
 
 \end{itemize}
 
 ****** I haven't added Xavi's references for the above from [1]-[7]. They are in the file he sent till we figure out if we will add them as footnotes or put them in the bibliography. ***********
-
-\subsection{User Privacy Implications}
-
-\subsection{Sysem Security}
-
-\subsection{Stats}
 
 \section{Suggestions}
 
@@ -430,11 +433,23 @@ Finally, another solution would be to allow users to delete their shortened URLs
 \paragraph{}
 During this research we learned how the URL shortening services operate and how the information publicized from users is being treated from them. These services operate in, a what seems, random manner when it comes to creating URLs but also with a certain level of sequentiality, which is obvious in the way the short URLs size increases.
 
+\subsection{User Privacy Implications}
+
 \paragraph{}
 We witnessed the amount of available information to an attacker and discussed the consequences the use of these kind of services may have to the users' privacy and possible exposure of vulnerabilities in various systems which could be accessed in an unintentional and non standard manner.
 
 \paragraph{}
+We suggested possible solutions to these issues and made proposals to improve the user experience of the shortening services in ways that help make the users more aware of what they are actually using and how it works. And from the services' perspective we collocated our concerns and suggestions of how the privacy and intimacy of the users could be protected.
+
+\subsection{Sysem Security}
+
+\paragraph{}
 Moreover we explained how feasible a much more intrusive approach is in collecting all this data (and the entirety of it if the time limit is large enough), how much time it would cost for someone to obtain this information and more importantly the size limitation that would occur in storing it.
+
+\paragraph{}
+If someone had the means and more importantly the intention of performing such a task with a malicious goal, they would be able to gather data and keep gathering and updating their database of these results and given enough time, be able to launch attacks to small or big systems, not only against individuals.
+
+\subsection{Stats}
 
 \section{Future Work}
 
@@ -493,6 +508,24 @@ $http://www.csd.uoc.gr/~hy558/papers/web.pdf$
 \section{Appendix}
 
 \subsection{Personal contribution}
+
+\begin{center}
+\begin{table}
+		\begin{tabular}{|l|c|c|c|}
+  			\hline
+	  		\textbf{Student} & \textbf{Project} & \textbf{Report} \\
+	  		\hline
+  			Alexandros & Literature Review, Data Research & All \\ 
+  			\hline
+  			Nikolaos & Code Development, Literature Review & All \\
+	  		\hline
+  			Xavier & Code Development, Math Calculations & All \\
+  			\hline
+  		\end{tabular}
+	\caption[A table]{Personal contribution in the project and report.}
+	
+\end{table}
+\end{center}
 
 \subsection{Codes}
 
