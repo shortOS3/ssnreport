@@ -191,6 +191,7 @@ The bitly API has a good documentation of its possibilities and how to use them.
 \item {Expand: The basic functionality of providing a short URL and retrieving its related long URL}
 \item{Lookup: Returns a bitly short link, provided an URL. Its an analogy of a reverse DNS query}
 \item {Info: Returns all the information associated to a bitly URL. This includes its related URL, as  well as other interesting parameters such its creation time or the creator of that link. This is useful as this kind of information cannot be retrieved through the front-door of bitly}
+\item {Shorten: This function produces a new short URL, in a similar way as the user interface provided in the website. Although less interesting than the others from the point of view of an attacker -as it is not an attack point-, this function accepts an additional string parameter to manually modify the generated short URL, effectively meaning that if a certain user or company uses this method carelessly, they can be easily targeted.}
 \end{itemize}
 
 
@@ -337,7 +338,32 @@ Using the aforementioned keywords, we were able to discover quite a lot of inter
 \paragraph{}
 We did some basic mining on the data we obtained, which lead us to a large amount of vulnerabilities that could be easily exploited. Considering that we only did this very basic study on the surface of the possibilities available, and the fact that we only crawled a very small subset of all available URLs on these services, we can conclude that the URLs are a huge database of vulnerabilities on the Internet.
 
-\subsection{What can an attacker do?}
+\subsection{Research Findings}
+
+\paragraph{}
+With a basic study of the data retrieved (meaning that we believe there could be many more issues to be exploited there through the usage of more complex tools) using the methods described in section 3.2, we found out the following problems:
+
+\begin{itemize}
+
+\item \textbf{Username and login pairs embedded as plaintext in URLs:} We found many instances of this issue from various sites, some of them being more dangerous as the usernames made references to email accounts or personal identification numbers, which could be used to track them down and exploit other services those persons use. Moreover, administrator information was shared, sometimes providing access in parts of websites that are not meant to be seen and accessed by the public. However, most importantly we discovered services that contained passwords in clear text or just the hash of the password and could grant access to accounts. In combination with the email accounts and and username information, it could become quite easy for an attacker to use this information for other services these users use and (considering the fact that many people use the same username and password pairs for different websites) access the rest of the services they use. Lastly, quite a few occurances contained password reset links, many times from the same websites.
+
+\item \textbf{Google maps location and timestamps sharing:} Some applications use the URL services to share information about a person visiting, for example, a certain café or shop and publish them in limited-length services such as SMS or Twitter. As the URL shortening services can offer information on when a link was created, this can lead to a violation of a person's privacy, by providing information of where they were at a certain hour, even if these applications do not provide that information.
+
+\item \textbf{Retrieving unprotected files from websites or FTP servers:} During our research we decided to search for certain types of files on the URLs, such as Microsoft Excel files. That was one way of investigating these systems; the other way was editing the long URL itself and trying to access different directories that would lead us to separate sections of the FTP server and maybe to more sensitive information. We managed to retrieve many unprotected files from FTP servers that had information about customers such as telephone numbers or addresses, and we even managed to find account balances. Also exact IP addresses and port numbers that are used to access them. This constitutes a major vulnerability that can be directly exploited by an attacker without any further effort.
+
+\item \textbf{IP addresses and ports:}  We were able to find a lot of IP addresses shared and many of them in combination with open ports of the webservers.
+
+\item \textbf{Common Service Names:} Some of these services just linked directly to a login page of a mailserver or webserver. We discovered links to PhpMyAdmin or MySQL pages. This does not constitute as big a vulnerability as the above, but an attacker would still have the option of attempting to brute force these pages.
+
+\item \textbf{Network Gear Vendor/Software Company Names:} Some of the results we found were logfiles of certain routers after firmware updates, or antivirus database updates which could also lead back to an FTP server. However that mainly lead to the public section of the FTP server.
+
+\item \textbf{Company/Bank Names:} We are glad to say that the majority of the results we found from banks did not contain sensitive information. We did however witness some companies sharing internal links to systems that are solely aimed to their staff.
+
+\item \textbf{HTML scraping:} During our research we didn't have time to go in depth with this kind of attack, as it is more complex than the others and requires extra time and resources to be performed. However, from the URL expansion we could see many URLs having session identifiers on them that could lead to data leakage, meaning this kind of attack could be proposed as future work for in relation to this project.
+
+\end{itemize}
+
+\subsection{Attack Options}
 
 \paragraph{}
 In this section we will discuss our calculations regarding the feasibility of getting the entire space of URLs available on these services, as well as what can be done with that data.
@@ -416,32 +442,24 @@ All the presented data up to this point is synthesized as follows:
 \paragraph{}
 These times mean that it is feasible to get the whole database of both services in a reasonable amount of time (specially goo.gl, which takes just a few hours). We also need to consider the fact that attacks can be started with just a portion of that set, and that these times can easily be further decreased by increasing the botnet size or trying to localize the infected computers on a certain location close to the URLS servers.
 
-\subsection{What have we found?}
-
-\paragraph{}
-With a basic study of the data retrieved (meaning that we believe there could be many more issues to be exploited there through the usage of more complex tools) using the methods described in section 3.2, we found out the following problems:
-
-\begin{itemize}
-
-\item \textbf{Username and login pairs embedded as plaintext in URLs:} We found many instances of this issue from various sites, some of them being more dangerous as the usernames made references to email accounts or personal identification numbers, which could be used to track them down and exploit other services those persons use. Moreover, administrator information was shared, sometimes providing access in parts of websites that are not meant to be seen and accessed by the public. However, most importantly we discovered services that contained passwords in clear text or just the hash of the password and could grant access to accounts. In combination with the email accounts and and username information, it could become quite easy for an attacker to use this information for other services these users use and (considering the fact that many people use the same username and password pairs for different websites) access the rest of the services they use. Lastly, quite a few occurances contained password reset links, many times from the same websites.
-
-\item \textbf{Google maps location and timestamps sharing:} Some applications use the URL services to share information about a person visiting, for example, a certain café or shop and publish them in limited-length services such as SMS or Twitter. As the URL shortening services can offer information on when a link was created, this can lead to a violation of a person's privacy, by providing information of where they were at a certain hour, even if these applications do not provide that information.
-
-\item \textbf{Retrieving unprotected files from websites or FTP servers:} During our research we decided to search for certain types of files on the URLs, such as Microsoft Excel files. That was one way of investigating these systems; the other way was editing the long URL itself and trying to access different directories that would lead us to separate sections of the FTP server and maybe to more sensitive information. We managed to retrieve many unprotected files from FTP servers that had information about customers such as telephone numbers or addresses, and we even managed to find account balances. Also exact IP addresses and port numbers that are used to access them. This constitutes a major vulnerability that can be directly exploited by an attacker without any further effort.
-
-\item \textbf{IP addresses and ports:}  We were able to find a lot of IP addresses shared and many of them in combination with open ports of the webservers.
-
-\item \textbf{Common Service Names:} Some of these services just linked directly to a login page of a mailserver or webserver. We discovered links to PhpMyAdmin or MySQL pages. This does not constitute as big a vulnerability as the above, but an attacker would still have the option of attempting to brute force these pages.
-
-\item \textbf{Network Gear Vendor/Software Company Names:} Some of the results we found were logfiles of certain routers after firmware updates, or antivirus database updates which could also lead back to an FTP server. However that mainly lead to the public section of the FTP server.
-
-\item \textbf{company/Bank Names:} We are glad to say that the majority of the results we found from banks did not contain sensitive information. We did however witness some companies sharing internal links to systems that are solely aimed to their staff.
-
-\item \textbf{HTML scraping:} During our research we didn't have time to go in depth with this kind of attack, as it is more complex than the others and requires extra time and resources to be performed. However, from the URL expansion we could see many URLs having session identifiers on them that could lead to data leakage, meaning this kind of attack could be proposed as future work for in relation to this project.
-
-\end{itemize}
 
 ****** I haven't added Xavi's references for the above from [1]-[7]. They are in the file he sent till we figure out if we will add them as footnotes or put them in the bibliography. ***********
+
+\subsection{URL Creation Patterns}
+
+\paragraph{}
+ One of our main research goals was to discover if there exists any type of pattern in the creation of these short URLs in relation with the given long URLs and try to identify it. In the time we devoted in this research, we believe with a fair amount of confidence that these links are created almost entirely randomly from goo.gl. In the course of these four weeks, each time we tested this particular service we would receive a completely unrelated outcome to the previous tries.
+ 
+\paragraph{}
+ It should be noted that the only indication of sequentiality in goo.gl is the fact that the length of the URLs grows as time progresses. From the data we collected, we can safely deduce the fact the four character long URLs (which is the minimum length) were created earlier than the URLs with length of five and six characters. Still the combination of characters used in each short URL seem to be chosen completely at random. 
+ 
+\paragraph{}
+ However that is not the case in bit.ly. During our research we observed that each time we would shorten a URL which had never been shortened in the past (e.g. links from our own Wikis), we would receive a link that would start with "1y[xxxxx]", where "x" represents a random character. By the end of our research, this value had progressed to "1z[xxxxx]", which is to be expected considering how much these services are used nowadays all over the world.
+ 
+\paragraph{}
+ We believe that this issue may have to do with the fact that bit.ly keeps a database of all the URLs which have been shortened, always providing the same short link for the same long one. When instead, goo.gl -at least from the front end- each time we tried to shrink a long URL, we would receive a different result.
+
+
 \newpage
 \section{Suggestions}
 
@@ -459,7 +477,7 @@ With a basic study of the data retrieved (meaning that we believe there could be
 \paragraph{}
  Heavily used services like these need to help users protect their privacy and inform them of how they operate with clear and precise statements. Of course the users need to also be able to comprehend the actual meaning of the word public and realize the implications and consequences of storing their information in a public medium. What they want their friends to see, might not be seen by just their friends.
 
-\subsection{Removal of confidential Information}
+\subsection{Removal of Confidential Information}
 
 \paragraph{}
  We have already discussed the search patterns we used to discover sensitive information for this research. These and even more could be used by these services to check their own database systems for entries that could contain confidential information and then remove them or handle them in a way they deem appropriate. This surely has not been implemented in the past, but it is never too late to begin.
@@ -503,7 +521,6 @@ Moreover we explained how feasible a much more intrusive approach is in collecti
 \paragraph{}
 If someone had the means and more importantly the intention of performing such a task with a malicious goal, they would be able to gather data and keep gathering and updating their database of these results and given enough time, be able to launch attacks to small or big systems, not only against individuals.
 
-\subsection{Stats}
 \newpage
 \section{Future Work}
 
@@ -559,6 +576,13 @@ we.b: The web of short URLs.\\
 $http://www.csd.uoc.gr/~hy558/papers/web.pdf$
 
 \newpage
+
+\section{Acknowledgements}
+
+thank kpmg
+
+\newpage
+
 \section{Appendix}
 
 \subsection{Personal contribution}
