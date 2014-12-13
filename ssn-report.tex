@@ -278,11 +278,25 @@ A deeper search can be done by retrieving the actual HTML or documents behind th
 \end{itemize}
 
 \subsubsection{MongoDB Queries}
+Although no actual work was performed on MongoDB the possibility of using a NoSQL database system like MongoDB. This can account for scalability once the amount of data gathered grows in size up to a point where conventional operations are not efficient any more. MongoDB also offers certain aggregation frameworks and Map/Reduce operations that can help apply more sophisticated pattern matching and analysis techniques in the future.\\
+An example query for searching the keyword 'password' in the dataset would be the following:
+
+\begin{lstlisting}
+> db.collection.find({"long": /.password./})
+\end{lstlisting}
+
+\noindent One could also use the Pipeline Aggregation framework to spot duplicates and aggregate all the short links that correspond to the same long url into one line. That way the analysis for ID generation patters could be aided. One example is the following:
+
+
+\begin{lstlisting}
+> db.google.aggregate([{$match:{}}, 
+{$group:{_id:"$long", short: {$addToSet: "$short"}}}])
+\end{lstlisting}
 
 \subsubsection{Regular Expressions}
 
 \paragraph{}
-After discussing what can be done to search for and access information in the collected data, we can continue to the way we performed those searches and the results we obtained. It should be reminded that since goo.gl does not check if a long URL has already been shortened, we observed that the same URLs had been shortened more than once
+After discussing what can be done to search for and access information in the collected data, we can continue to the way we performed those searches and the results we obtained. It should be reminded that since goo.gl does not check if a long URL has already been shortened, we observed that the same URLs had been shortened more than once.
 
 \paragraph{}
 Some the of the keywords used to reveal sensitive information have already been hinted above. This is the list of our searches along with what we were hoping and expecting to find.
