@@ -84,7 +84,6 @@ Nikolaos Petros Triantafyllidis\\
 
 %\justify
 \noindent
-NOTE TO TEAM: This is just a first attempt on an abstract that can work as a guiding light. We'd better write the abstract after the report is finished. Which makes more sense. Peace. And love. \\[0.5cm]
 In this project we focus on URL shortening services, from a security point of view.\\ Our first aim is to determine the feasibility of an exhaustive mapping of all the short links to their respective long URLs, estimating the cost in both time and computational resources. Secondly we try to discover the nature and the amount of sensitive (usernames, passwords, system configurations, user details, etc.) data that has been deposited to such services, and eventually pinpoint security holes that might have been leaked through them. Our final aim is to try and determine if there is some sort of mapping relationship between the long and short URLs. \\
 The research methodologies and software tools used for the project are described in detail. The results and interesting findings are presented and the appropriate discretion is applied where deemed necessary. 
 
@@ -106,7 +105,7 @@ At this point we would like to thank KPMG and especially Mr. Martijn Sprengers a
 \paragraph{}
 URL shortening refers to the technique of taking any HTTP Uniform Resource Locator (URL) and producing a shortened version that links to the same Web resource, by issuing an HTTP redirect response. The purpose of this technique is to transform large (sometimes hundreds of characters long) and very descriptive URLs to something that is much sorter, easier to remember and be shared in an environment where typing space is limited (social media, mobile devices, instant messengers, etc.)
 \paragraph{}
-This technique has been around since the early 2000s, when the first US patent was filled, but became really popular by the coming of Twitter, a social medium that only allowed a certain number of characters to be typed in each post (Tweet) of the user, and which started automatically shortening URLs more than 26 characters long. The first website to provide shortening services was tinyURL.com, with similar services including, among others, wp.me (by Wordpress), goo.gl (by Google) and bit.ly, with the last two being the most popular. 
+This technique has been around since the early 2000s, when the first US patent was filled \cite{uspatent}, but became really popular by the coming of Twitter, a social medium that only allowed a certain number of characters to be typed in each post (Tweet) of the user, and which started automatically shortening URLs more than 26 characters long \cite{twitter}. The first website to provide shortening services was tinyURL.com, with similar services including, among others, wp.me (by Wordpress), goo.gl (by Google) and bit.ly, with the last two being the most popular. 
 \paragraph{}
 This report focuses on certain security issues that arise by the use of such services. The main problem is that the databases kept by these services in order to issue the correct redirects (from short to long links) are public and easily accessible via a simple web client. In case the users of these services carelessly input sensitive data, this data becomes public and easy to retrieve by anyone.
 \paragraph{} 
@@ -116,7 +115,7 @@ The rest of this chapter is dedicated to describing in detail the problem we wil
 \paragraph{}
 URLs tend to carry a lot of information besides the location of the web resource. That can include, among others, file hierarchies, configuration parameters, IP addresses, port numbers and in more serious cases, usernames, clear text passwords, links for unauthenticated access to internal servers, etc. Moreover, URLs can link to web content that would normally be inaccessible by non-authenticated users, through permalinks and hotlinks. Namely that includes social network profiles of users, private pictures and videos, online documents etc. It is apparent that there is a lot of web content that can either be exploited for attacking the computer infrastructure of companies and organisations or can lead to user identification and leakage of their private data. Obviously, in all of the aforementioned cases this content has to be securely kept away from the public eye.
 \paragraph{}
-Hunting for URLs and web content that can be exploited is not something new. Scraping the web for exploitable data has been around since the early days of the web. Since the Web is the most popular among internet users, "hackers" are always trying to find content that users share in private. For example through a technique called "Fuskering" it is easy to guess the address of certain web content by following a specific pattern. The problem, however, in the previous cases  is to be able to locate the source of the information to be retrieved which sometimes needs to breach the security of certain systems such as emails, tcp connections, etc.
+Hunting for URLs and web content that can be exploited is not something new \cite{semantic}. Scraping the web for exploitable data has been around since the early days of the web. Since the Web is the most popular among internet users, "hackers" are always trying to find content that users share in private. For example through a technique called "Fuskering" it is easy to guess the address of certain web content by following a specific pattern \cite{fusker}. The problem, however, in the previous cases  is to be able to locate the source of the information to be retrieved which sometimes needs to breach the security of certain systems such as emails, tcp connections, etc.
 \paragraph{}
 In the specific case of URL shortening things become much easier. First of all a potential attacker has a very well known and centralised source of information since URL shortening services expand their databases each time a user shortens a long URL. Secondly, contrary to long URLs that can be highly unpredictable, containing extended file hierarchies, non-standard names, etc, shortened URLs are very formalistic drawing from a limited character space and having a limited length of a few characters. That allows anyone to try and guess random URLs and be redirected to their full length counterparts. If that effort gets co-ordinated and spanned across various machines, one could exhaustively search across the domain of the short URLs or at least get a very big portion of the long URL data space, on which they could easily search for patterns that may expose sensitive data. A third "charming" attribute of the URL shorteners is that the information collected is very diverse, spanning from blog posts to internal network configurations, making this source very interesting to any person digging for security related information. 
 \paragraph{}
@@ -125,19 +124,19 @@ The problem becomes even more intense when, not only users unaware of the public
 \subsection{Previous Work}
 
 \paragraph{}
-Most of the previous work which has been done on URL shortening services is based on the use of short URLs and its correlation with SPAM and phishing techniques, whether that is to prevent spamming or to explain how these two are combined. One example of the latter is how the original URL is masked in a way that the receiver of such a malicious email will not be able to realize the fact that by clicking such a link, he or she will not be redirected to a legitimate website.
+Most of the previous work which has been done on URL shortening services is based on the use of short URLs and its correlation with SPAM and phishing techniques, whether that is to prevent spamming or to explain how these two are combined. One example of the latter is how the original URL is masked in a way that the receiver of such a malicious email will not be able to realize the fact that by clicking such a link, he or she will not be redirected to a legitimate website.\cite{consider}\cite{case}\cite{risk}
  
 \paragraph{}
-Another example was the investigation of specific countermeasures taken from these particular services to defend against the manipulation of the shortened URLs for malicious purposes; also trying to determine and statistically analyse the extent of spamming given certain geographical locations in which the services were used.
+Another example was the investigation of specific countermeasures taken from these particular services to defend against the manipulation of the shortened URLs for malicious purposes; also trying to determine and statistically analyse the extent of spamming given certain geographical locations in which the services were used. \cite{web} \cite{attack}
 
 \paragraph{}
- As for the analysis of the URLs as independent links and their respective data, the primary focus was on short URLs collected by popular social media such as Twitter. And the statistics revolved around their popularity lifetimes along with the expectancy of the amount of clicks these URLs would get.
+ As for the analysis of the URLs as independent links and their respective data, the primary focus was on short URLs collected by popular social media such as Twitter. And the statistics revolved around their popularity lifetimes along with the expectancy of the amount of clicks these URLs would get. \cite{twoyears} \cite{stranger}
  
 \paragraph{}
- An interesting example of this was to use these services to monitor certain campaigns from companies that someone deems as competitors. Google search queries were used to find results from the website of a specific company that contain the names goo.gl or bit.ly in combination with the use of certain keywords. After obtaining a positive result, one could use these shortened links to study their metrics and then judge (e.g. by the amount of clicks) how well that particular campaign is going.
+ An interesting example of this was to use these services to monitor certain campaigns from companies that someone deems as competitors. Google search queries were used to find results from the website of a specific company that contain the names goo.gl or bit.ly in combination with the use of certain keywords. After obtaining a positive result, one could use these shortened links to study their metrics and then judge (e.g. by the amount of clicks) how well that particular campaign is going.\cite{campaigns}
  
  \paragraph{}
-The most closely related to this project scientific research was a paper published by the RWTH Aachen University in 2010. This paper, among other security related aspects of the URL shortening services, examines a potential enumeration of all possible short URL strings. However, they have tried a much different approach, only taking a small sample (around 230000 URLs per service) of the possible space in a time amounting to a few hours for that process (they mention for example 27 hours for 230000 URLs from goo.gl). Based on that they conclude that an exhaustive search is feasible without, however, justifying that conclusion. 
+The most closely related to this project scientific research was a paper published by the RWTH Aachen University in 2010. This paper, among other security related aspects of the URL shortening services, examines a potential enumeration of all possible short URL strings. However, they have tried a much different approach, only taking a small sample (around 230000 URLs per service) of the possible space in a time amounting to a few hours for that process (they mention for example 27 hours for 230000 URLs from goo.gl). Based on that they conclude that an exhaustive search is feasible without, however, justifying that conclusion. \cite{implications}
 
 \subsection{Ethical Implications}
 In any security related research, it is very likely to come across very sensitive data that has to be treated with care in order not to fall into the wrong hands. Any findings with particular security significance will not be disclosed in public and if needed the appropriate parties will be notified. Any data collected during this research will be kept safely in University infrastructure, and appropriate measures will be taken to prevent leakage. It is however useful to note that all data gathered are easily retrievable by anyone since they are public data.
@@ -174,7 +173,7 @@ The short link IDs generated by the service are 4 to 6 characters long and are B
 The service can be accessed programmatically via the Web API that gets exposed by Google. The API is available among most of Google APIs via the Web-based developer console. In order for it to be used the user must have a valid Google account and register their application at the developers console. Then the URL shortening API must be activated and an API key must be generated. There is an option for OAuth token authentication but for this particular API most operations are available with plain API key authentication. The usage for the URL shortener API is limited to 1.000.000 requests per day and the default limit per second is set to 1 request/s. This however can be configured via the developer console to thousands of requests per second. 
 
 \paragraph{}
-The API exposes 4 different functionalities which are the following: 
+The API exposes 4 different functionalities which are the following \cite{google}: 
 
 \begin{itemize}
 
@@ -192,7 +191,7 @@ The API exposes 4 different functionalities which are the following:
 Bitly offers a URLS service that reduces long URLs to a bit.lu URL with a hash that ranges from one to seven characters. This gives the platform a considerable higher amount of addresses than goo.gl.
 
 \paragraph{}
-The bitly API has a good documentation of its possibilities and how to use them. However, some important details are omitted -as an example, the documentation states that there are many request limits per amount of time, but does not specify the actual limits-. These additional options can prove to be useful for more complex attacks, and we will discuss the possibilities of the most interesting ones.
+The bitly API has a good documentation of its possibilities and how to use them. However, some important details are omitted -as an example, the documentation states that there are many request limits per amount of time, but does not specify the actual limits-. These additional options can prove to be useful for more complex attacks, and we will discuss the possibilities of the most interesting ones. \cite{billy}
 
 \begin{itemize}
 
@@ -267,7 +266,7 @@ We also included a basic network communication utility on the script to enable c
 \paragraph{}
 Once the URLs have been retrieved, there are many ways that information can be handled, and different levels of depth to perform searches.
 
-\subsubsection{URL Data}
+\subsubsection{Data from the collected URLs}
 
 \paragraph{}
 The first level of search is the long URLs retrieved themselves. Some of those URLs contain parameters which can provide useful information to an attacker. Even a simple check for the string “password” leads to many URLs that actually have plaintext passwords on them. Other parameters that an attacker could be interested in are for example usernames, dates or session identifiers.
@@ -305,9 +304,11 @@ Some the of the keywords used to reveal sensitive information have already been 
 
 \item \textbf{Login.} Usually in combination with the above. Also to see whether or not we could record session IDs.
 
+\item \textbf{AuthKey.} On the same note with the above, we believed there might exist senselessly shared information which could provide access if the authorization key was shared in the URL.
+
 \item \textbf{Maps.} We were already assuming that many of the results would be location related. Our goal was to investigate whether we could find exact coordinates shared online and what information they would give us if we combined it with the analytics offered by the services such as creation times.
 
- \item \textbf{Common service names.} We searched for keywords such as mailserver, webserver, PhpMyAdmin, MySQL etc.
+\item \textbf{Common service names.} We searched for keywords such as mailserver, webserver, PhpMyAdmin, MySQL etc.
 
 \item \textbf{Ftp.} Our main interest in this was to test whether we can gain access in malconfigured FTP server, just by editing the long URLs and deleting the parts of the files that were shortened and shared.
 
@@ -369,7 +370,9 @@ With a basic study of the data retrieved (meaning that we believe there could be
 
 \begin{itemize}
 
-\item \textbf{Username and login pairs embedded as plaintext in URLs:} We found many instances of this issue from various sites, some of them being more dangerous as the usernames made references to email accounts or personal identification numbers, which could be used to track them down and exploit other services those persons use. Moreover, administrator information was shared, sometimes providing access in parts of websites that are not meant to be seen and accessed by the public. However, most importantly we discovered services that contained passwords in clear text or just the hash of the password and could grant access to accounts. In combination with the email accounts and and username information, it could become quite easy for an attacker to use this information for other services these users use and (considering the fact that many people use the same username and password pairs for different websites) access the rest of the services they use. Lastly, quite a few occurances contained password reset links, many times from the same websites.
+\item \textbf{Username and login pairs embedded as plaintext in URLs:} We found many instances of this issue from various sites, some of them being more dangerous as the usernames made references to email accounts or personal identification numbers, which could be used to track them down and exploit other services those persons use. Moreover, administrator information was shared, sometimes providing access in parts of websites that are not meant to be seen and accessed by the public. However, most importantly we discovered services that contained passwords in clear text or just the hash of the password and could grant access to accounts. In combination with the email accounts and and username information, it could become quite easy for an attacker to use this information for other services these users use and (considering the fact that many people use the same username and password pairs for different websites) access the rest of the services they use. Lastly, quite a few occurrences contained password reset links, many times from the same websites.
+
+item \textbf{AuthKeys:} We were able to discover many instances of long URLS shared with this particular keyword and lead to cloud directories of user, Google Docs and spreadsheets shared from users who had published these files without knowing that someone else could edit their information. Also we managed to find files with personal user information, such as email acounts, telephone numbers, birthdays etc, files with company information or shop equipment orders.
 
 \item \textbf{Google maps location and timestamps sharing:} Some applications use the URL services to share information about a person visiting, for example, a certain café or shop and publish them in limited-length services such as SMS or Twitter. As the URL shortening services can offer information on when a link was created, this can lead to a violation of a person's privacy, by providing information of where they were at a certain hour, even if these applications do not provide that information.
 
@@ -386,6 +389,9 @@ With a basic study of the data retrieved (meaning that we believe there could be
 \item \textbf{HTML scraping:} During our research we didn't have time to go in depth with this kind of attack, as it is more complex than the others and requires extra time and resources to be performed. However, from the URL expansion we could see many URLs having session identifiers on them that could lead to data leakage, meaning this kind of attack could be proposed as future work for in relation to this project.
 
 \end{itemize}
+
+\paragraph{}
+At the Appendix section of the report, we provide a small set of statistics about the data we discovered.
 
 \subsection{Attack Options}
 
@@ -546,82 +552,119 @@ If someone had the means and more importantly the intention of performing such a
 \section{Future Work}
 
 \paragraph{}
-In conclusion, we believe that our research could very well have a continuation as our limited amount of time did not allow us to research all the aspects that we initially hoped to. As already explained, it would not be very difficult for someone to gather the entire dataset of short URLs and perform an exhaustive research, given a large amount of time to collect the data and interact with it to discover all the sensitive information there is to be found if that was performed with some rather questionable media (e.g. botnets). If someone would want to do the same with a more honest approach, this research would take a lot longer, mostly because of the sheer amount of data there is to be found.
+In conclusion, we believe that our research could very well be continued as our limited amount of time did not allow us to research all the aspects that we initially hoped to. As it already has been explained, it would not be very difficult for someone to gather the entire dataset of short URLs and perform an exhaustive research, given enough compute power and a large amount of time to collect the data and interact with it to discover all the sensitive information there is to be found. Thus a future step would be to actually try and perform that exhaustive search, applying at the same time more sophisticated search techniques to avoid replication of collected data. 
 
 \paragraph{}
-In addition we believe that there is a lot more information to be discovered in the HTML contents of these URLs. For obvious reasons such as lack of time and not less importantly legality, invasion of privacy and such we did not have the luxury of investigating this side of the research. 
+In addition we believe that there is a lot more information to be discovered in the HTML contents of these URLs. For obvious reasons such as lack of time and more importantly legality and protection of user privacy we did not have the luxury of investigating this side of the research. 
 
 \paragraph{}
-The main reason we believe there is a future for this research is that the dataset keeps growing constantly and unless there is a new method of sharing long URLs introduced soon, then the media which offer this type of service will not stop or change their use of it.
+Moreover one could apply statistical methods on the short URL space in order to try and discover possible creation patterns that can reveal certain information about the short URLs and narrow down the search space. 
+
+\paragraph{}
+The dataset keeps growing constantly, as does popularity of these services, and the security threat is apparent. For that reason we believe that this is a rather open research topic since there are new methods, either for discovering the sensitive data or for user protection, to be discovered.
+
 \newpage
 
 \begin{thebibliography}{99}
 
+\bibitem{uspatent}
+US Patent 6957224, Efficient retrieval of uniform resource locators, \\ \url{http://patft.uspto.gov/netacgi/nph-Parser?Sect1=PTO1&Sect2=HITOFF&d=PALL&p=1&u=%2Fnetahtml%2FPTO%2Fsrchnum.htm&r=1&f=G&l=50&s1=6957224.PN.&OS=PN/6957224&RS=PN/6957224}
+
+\bibitem{twitter}
+Bit.ly Eclipses TinyURL on Twitter, \\ \url{http://bits.blogs.nytimes.com/2009/05/07/bitly-eclipses-tinyurl-on-twitter/}
+
+\bibitem{semantic}
+Semantic Attacks ? What's in a URL,Richard Siedzik, GIAC, \\ \url{http://www.giac.org/paper/gsec/650/semantic-attacks-url/101497}
+
+\bibitem{fusker}
+How to block fusker, \\ \url{http://www.businessvoyeur.com/2005-03-13/how-to-block-fusker}]
+
 \bibitem{bots}
-Bots \& Botnet: An Overview, SANS Institute, \url{http://www.sans.org/reading-room/whitepapers/malicious/bots-botnet-overview-1299}
+Bots \& Botnet: An Overview, SANS Institute, \\ \url{http://www.sans.org/reading-room/whitepapers/malicious/bots-botnet-overview-1299}
+
+\bibitem{case}
+The case of URL Shorteners: How safe are they?, \\ \url{https://www.stopthehacker.com/2010/02/19/analyzing-URL-shorteners/}
+
+\bibitem{consider}
+What to consider before shortening URLs?, \\ \url{http://www.polyu.edu.hk/ags/Newsletter/news1311/article3/index3.php}
+
+\bibitem{risk}
+URL shortening: Yet another security risk. \\ \url{http://www.techrepublic.com/blog/it-security/URL-shortening-yet-another-security-risk}
+
+\bibitem{campaigns}
+How to spy on campaigns of competitors who use URL shorteners. \\ \url{http://www.zdnet.com/article/how-to-spy-on-campaigns-of-\\competitors-who-use-URL-shorteners}
+
+\bibitem{stranger}
+Stranger Danger: Exploring the Ecosystem of Ad-Based URL Shortening Services. \\ \url{https://lirias.kuleuven.be/bitstream/123456789/440951/1/strangerdanger_www2014.pdf}
+
+\bibitem{attack}
+Short Links under Attack: Geographical Analysis of Spam in a URL Shortener Network. \\ \url {http://kti.tugraz.at/staff/markus/documents/2012_HT2012_Short_links.pdf}
+
+\bibitem{twoyears}Two Years of Short URLs Internet Measurement: Security Threats and Countermeasures. \\ \url{https://www.cs.ucsb.edu/~chris/research/doc/www13_shortURLs.pdf}
+
+\bibitem{implications}
+Security and Privacy Implications of URL Shortening Services. \\ \url{http://w2spconf.com/2011/papers/URLShortening.pdf}
+
+\bibitem{google}
+Bit.ly web API, https://developers.google.com/url-shortener/v1/
+
+\bibitem{bitly}
+Goo,gl web API, http://dev.bitly.com/api.html
+
+\bibitem{web}
+we.b: The web of short URLs. \\ \url{http://www.csd.uoc.gr/~hy558/papers/web.pdf}
+
 \bibitem{nirsoft}
 \url{http://www.nirsoft.net/}
+
 \bibitem{ripestat}
 \url{https://stat.ripe.net/}
+
 \bibitem{ripestatnl}
 \url{https://stat.ripe.net/24.132.128.0%20#tabId=at-a-glance}
+
 \bibitem{ripestatjp}
 \url{https://stat.ripe.net/58.183.128.0#tabId=at-a-glance}
+
 \bibitem{ripestatus}
 \url{https://stat.ripe.net/24.247.0.0%20#tabId=at-a-glance}
+
 \bibitem{ripestates}
 \url{https://stat.ripe.net/158.109.64.164#tabId=at-a-glance}
 
+
 \end{thebibliography}
-
-
-% \section{References}
-%
-% \bibliography{ssn-report}
-% Wikipedia Definition:\\
-% $http://en.wikipedia.org/wiki/URL_shortening$
-% \\
-%
-% The case of URL Shorteners: How safe are they?\\
-% $https://www.stopthehacker.com/2010/02/19/analyzing-URL-shorteners/$
-% \\
-%
-% What to consider before shortening URLs?\\
-% $http://www.polyu.edu.hk/ags/Newsletter/news1311/article3/index3.php$
-% \\
-%
-% URL shortening: Yet another security risk.\\
-% $http://www.techrepublic.com/blog/it-security/URL-shortening-yet-another-security-risk/$
-% \\
-%
-% How to spy on campaigns of competitors who use URL shorteners.\\
-% $http://www.zdnet.com/article/how-to-spy-on-campaigns-of-competitors-who-use-URL-shorteners/$
-% \\
-%
-% Stranger Danger: Exploring the Ecosystem of Ad-Based URL Shortening Services.\\
-% $https://lirias.kuleuven.be/bitstream/123456789/440951/1/strangerdanger_www2014.pdf$
-% \\
-%
-% Short Links under Attack: Geographical Analysis of Spam in a URL Shortener Network.\\
-% $http://kti.tugraz.at/staff/markus/documents/2012_HT2012_Short_links.pdf$
-% \\
-%
-% Two Years of Short URLs Internet Measurement: Security Threats and Countermeasures.\\
-% $https://www.cs.ucsb.edu/~chris/research/doc/www13_shortURLs.pdf$
-% \\
-%
-% Security and Privacy Implications of URL Shortening Services.\\
-% $http://w2spconf.com/2011/papers/URLShortening.pdf$
-% \\
-%
-% we.b: The web of short URLs.\\
-% $http://www.csd.uoc.gr/~hy558/papers/web.pdf$
-%
 
 \newpage
 
-
 \begin{appendices}
+
+\section{Result Statistics}
+
+\begin{table}[h]
+		\begin{tabular}{|l|c|c|c|}
+			\hline
+	  		\textbf{Keyword} & \textbf{Goo.gl} & \textbf{Bit.ly} \\
+	  		\hline
+  			Username & 1400 & 928 \\ 
+  			\hline
+  			Password & 2366 & 643 \\
+	  		\hline
+  			Authkeys & 7867 & 1683 \\
+  			\hline
+  			Admin & 14540 & 4085 \\
+  			\hline
+  			Login & 24289 & 10775 \\
+  			\hline
+  			Maps & 87746 & 15917 \\
+  			\hline
+  			FTP & 6935 & 2011 \\
+  			\hline
+  			mySQL & 1557 & 264 \\
+  			\hline
+   		\end{tabular}
+	\caption[A table]{Number of keyword occurances.}
+\end{table}
 
 \section{Personal Contribution} 
 
